@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/usuarios.js", "use": "@vercel/node" },
+    { "src": "api/usuarios/[...catchall].js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/usuarios", "dest": "/api/usuarios.js" },
+    { "src": "/api/usuarios/(.*)", "dest": "/api/usuarios/[...catchall].js" }
+  ]
+}

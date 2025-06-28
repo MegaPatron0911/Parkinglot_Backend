@@ -103,6 +103,143 @@ Base URL: `/api/usuarios`
 }
 ```
 
+## Endpoints de la API de Vehículo
+Base URL: `/api/vehiculos`
+
+### 1. Obtener todos los vehículos
+- **GET** `/api/vehiculos`
+- **Respuesta:** Array de vehículos
+```json
+[
+  {
+    "id": 1,
+    "placa": "ABC123",
+    "color": "Rojo",
+    "modelo": "2020",
+    "marca": "Toyota",
+    "tipo": "Carro",
+    "usuario_id_usuario": 2
+  },
+  ...
+]
+```
+
+### 2. Obtener vehículo por ID
+- **GET** `/api/vehiculos/:id`
+- **Respuesta exitosa:** Vehículo en formato JSON
+- **Respuesta error:** `{ "error": "Vehículo no encontrado" }`
+
+### 3. Obtener vehículo por placa
+- **GET** `/api/vehiculos/placa/:placa`
+- **Respuesta exitosa:** Vehículo en formato JSON
+- **Respuesta error:** `{ "error": "Vehículo no encontrado" }`
+
+### 4. Obtener vehículos por usuario
+- **GET** `/api/vehiculos/usuario/:usuario_id`
+- **Respuesta:** Array de vehículos asociados al usuario
+
+### 5. Crear un nuevo vehículo
+- **POST** `/api/vehiculos`
+- **Body (JSON):**
+```json
+{
+  "placa": "ABC123",
+  "color": "Rojo",
+  "modelo": "2020",
+  "marca": "Toyota",
+  "tipo": "Carro",
+  "usuario_id_usuario": 2
+}
+```
+- **Respuesta exitosa:** Vehículo creado (JSON)
+- **Respuesta error:** `{ "error": "<mensaje>" }`
+
+### 6. Actualizar vehículo por ID
+- **PUT** `/api/vehiculos/:id`
+- **Body (JSON):** Cualquier campo editable del vehículo
+- **Respuesta exitosa:** Vehículo actualizado (JSON)
+- **Respuesta error:** `{ "error": "Vehículo no encontrado" }`
+
+### 7. Eliminar vehículo por ID
+- **DELETE** `/api/vehiculos/:id`
+- **Respuesta exitosa:** `{ "mensaje": "Vehículo eliminado" }`
+- **Respuesta error:** `{ "error": "Vehículo no encontrado" }`
+
+## Endpoints de la API de Reporte de Incidencia
+Base URL: `/api/reportes-incidencia`
+
+### 1. Crear un nuevo reporte de incidencia
+- **POST** `/api/reportes-incidencia`
+- **Body (JSON):**
+```json
+{
+  "vehiculo_id": 1,
+  "incidencia_id": 2,
+  "fecha_hora": "2025-06-27 10:00:00"
+}
+```
+- **Respuesta exitosa:** Reporte creado (JSON)
+- **Respuesta error:** `{ "error": "<mensaje>" }`
+
+### 2. Obtener todos los reportes de incidencia
+- **GET** `/api/reportes-incidencia`
+- **Respuesta:** Array de reportes
+
+### 3. Obtener reportes por IDs de vehículo e incidencia
+- **GET** `/api/reportes-incidencia/by-ids?vehiculo_id=1&incidencia_id=2`
+- **Respuesta:** Array de reportes que coinciden
+
+### 4. Obtener reportes por ID de vehículo
+- **GET** `/api/reportes-incidencia/vehiculo/:vehiculo_id`
+- **Respuesta:** Array de reportes asociados al vehículo
+
+### 5. Obtener reportes por ID de incidencia
+- **GET** `/api/reportes-incidencia/incidencia/:incidencia_id`
+- **Respuesta:** Array de reportes asociados a la incidencia
+
+### 6. Obtener reportes por rango de fechas
+- **GET** `/api/reportes-incidencia/rango-fechas?fechaInicio=2025-06-01&fechaFin=2025-06-27`
+- **Respuesta:** Array de reportes en el rango de fechas
+
+### 7. Actualizar un reporte de incidencia
+- **PUT** `/api/reportes-incidencia`
+- **Body (JSON):**
+```json
+{
+  "vehiculo_id": 1,
+  "incidencia_id": 2,
+  "fecha_hora": "2025-06-27 12:00:00"
+}
+```
+- **Respuesta exitosa:** Reporte actualizado (JSON)
+- **Respuesta error:** `{ "error": "<mensaje>" }`
+
+### 8. Eliminar un reporte de incidencia por IDs
+- **DELETE** `/api/reportes-incidencia`
+- **Body (JSON):**
+```json
+{
+  "vehiculo_id": 1,
+  "incidencia_id": 2
+}
+```
+- **Respuesta exitosa:** `{ "success": true }`
+- **Respuesta error:** `{ "error": "<mensaje>" }`
+
+### 9. Eliminar todos los reportes de un vehículo
+- **DELETE** `/api/reportes-incidencia/vehiculo/:vehiculo_id`
+- **Respuesta exitosa:** `{ "success": true }`
+- **Respuesta error:** `{ "error": "<mensaje>" }`
+
+## Estructura de Respuesta de Reporte de Incidencia
+```json
+{
+  "vehiculo_id": 1,
+  "incidencia_id": 2,
+  "fecha_hora": "2025-06-27 10:00:00"
+}
+```
+
 ## Pruebas y Ejecución
 - Ejecuta `npm install` para instalar dependencias
 - Inicia el servidor con `npm start`

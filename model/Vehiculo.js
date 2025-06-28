@@ -1,4 +1,4 @@
-const DatabaseConnection = require('../DatabaseConnection');
+const supabase = require('../DatabaseConnection');
 
 class Vehiculo {
   constructor(
@@ -17,7 +17,6 @@ class Vehiculo {
     this._marca = marca;
     this._tipo = tipo;
     this._usuario_id_usuario = usuario_id_usuario;
-    this._db = new DatabaseConnection();
   }
 
   // Getters
@@ -40,131 +39,84 @@ class Vehiculo {
 
   // CREATE - Insert new vehicle
   async create() {
-    try {
-      const sql = `INSERT INTO VEHICULO (placa, color, modelo, marca, tipo, USUARIO_id_usuario) 
-                   VALUES (?, ?, ?, ?, ?, ?)`;
-      
-      const params = [
-        this._placa, this._color, this._modelo, this._marca, this._tipo, this._usuario_id_usuario
-      ];
-      
-      const result = await this._db.executeQuery(sql, params);
-      this._id = result.results.insertId;
-      return this;
-    } catch (error) {
-      throw new Error(`Error creating Vehiculo: ${error.message}`);
-    } finally {
-      await this._db.close();
-    }
+    const insertObj = {
+      placa: this._placa,
+      color: this._color,
+      modelo: this._modelo,
+      marca: this._marca,
+      tipo: this._tipo,
+      usuario_id_usuario: this._usuario_id_usuario
+    };
+    const { data, error } = await supabase.from('vehiculo').insert([insertObj]).select().single();
+    if (error) throw new Error(`Error creating Vehiculo: ${error.message}`);
+    this._mapRowToObject(data);
+    return this;
   }
 
   // READ - Get vehicle by ID
   async findById(id) {
-    try {
-      const sql = 'SELECT * FROM VEHICULO WHERE id = ?';
-      const result = await this._db.executeQuery(sql, [id]);
-      
-      if (result.results.length > 0) {
-        const row = result.results[0];
-        this._mapRowToObject(row);
-        return this;
-      }
-      return null;
-    } catch (error) {
-      throw new Error(`Error finding Vehiculo: ${error.message}`);
-    } finally {
-      await this._db.close();
+    const { data, error } = await supabase.from('vehiculo').select('*').eq('id', id).single();
+    if (error) throw new Error(`Error finding Vehiculo: ${error.message}`);
+    if (data) {
+      this._mapRowToObject(data);
+      return this;
     }
+    return null;
   }
 
   // READ - Get all vehicles
   static async findAll() {
-    const db = new DatabaseConnection();
-    try {
-      const sql = 'SELECT * FROM VEHICULO';
-      const result = await db.executeQuery(sql);
-      
-      return result.results.map(row => {
-        const vehiculo = new Vehiculo();
-        vehiculo._mapRowToObject(row);
-        return vehiculo;
-      });
-    } catch (error) {
-      throw new Error(`Error finding all Vehiculo: ${error.message}`);
-    } finally {
-      await db.close();
-    }
+    const { data, error } = await supabase.from('vehiculo').select('*');
+    if (error) throw new Error(`Error finding all Vehiculo: ${error.message}`);
+    return (data || []).map(row => {
+      const vehiculo = new Vehiculo();
+      vehiculo._mapRowToObject(row);
+      return vehiculo;
+    });
   }
 
   // READ - Find by plate
   async findByPlaca(placa) {
-    try {
-      const sql = 'SELECT * FROM VEHICULO WHERE placa = ?';
-      const result = await this._db.executeQuery(sql, [placa]);
-      
-      if (result.results.length > 0) {
-        const row = result.results[0];
-        this._mapRowToObject(row);
-        return this;
-      }
-      return null;
-    } catch (error) {
-      throw new Error(`Error finding Vehiculo by placa: ${error.message}`);
-    } finally {
-      await this._db.close();
+    const { data, error } = await supabase.from('vehiculo').select('*').eq('placa', placa).single();
+    if (error) throw new Error(`Error finding Vehiculo by placa: ${error.message}`);
+    if (data) {
+      this._mapRowToObject(data);
+      return this;
     }
+    return null;
   }
 
   // READ - Find vehicles by user ID
   static async findByUserId(userId) {
-    const db = new DatabaseConnection();
-    try {
-      const sql = 'SELECT * FROM VEHICULO WHERE USUARIO_id_usuario = ?';
-      const result = await db.executeQuery(sql, [userId]);
-      
-      return result.results.map(row => {
-        const vehiculo = new Vehiculo();
-        vehiculo._mapRowToObject(row);
-        return vehiculo;
-      });
-    } catch (error) {
-      throw new Error(`Error finding Vehiculo by user ID: ${error.message}`);
-    } finally {
-      await db.close();
-    }
+    const { data, error } = await supabase.from('vehiculo').select('*').eq('usuario_id_usuario', userId);
+    if (error) throw new Error(`Error finding Vehiculo by user ID: ${error.message}`);
+    return (data || []).map(row => {
+      const vehiculo = new Vehiculo();
+      vehiculo._mapRowToObject(row);
+      return vehiculo;
+    });
   }
 
   // UPDATE - Update vehicle
   async update() {
-    try {
-      const sql = `UPDATE VEHICULO SET placa = ?, color = ?, modelo = ?, marca = ?, tipo = ?, 
-                   USUARIO_id_usuario = ? WHERE id = ?`;
-      
-      const params = [
-        this._placa, this._color, this._modelo, this._marca, this._tipo, 
-        this._usuario_id_usuario, this._id
-      ];
-      
-      await this._db.executeQuery(sql, params);
-      return this;
-    } catch (error) {
-      throw new Error(`Error updating Vehiculo: ${error.message}`);
-    } finally {
-      await this._db.close();
-    }
+    const updateObj = {
+      placa: this._placa,
+      color: this._color,
+      modelo: this._modelo,
+      marca: this._marca,
+      tipo: this._tipo,
+      usuario_id_usuario: this._usuario_id_usuario
+    };
+    const { error } = await supabase.from('vehiculo').update(updateObj).eq('id', this._id);
+    if (error) throw new Error(`Error updating Vehiculo: ${error.message}`);
+    return this;
   }
 
   // DELETE - Delete vehicle
   async delete() {
-    try {
-      const sql = 'DELETE FROM VEHICULO WHERE id = ?';
-      await this._db.executeQuery(sql, [this._id]);
-      return true;
-    } catch (error) {
-      throw new Error(`Error deleting Vehiculo: ${error.message}`);
-    } finally {
-      await this._db.close();
-    }
+    const { error } = await supabase.from('vehiculo').delete().eq('id', this._id);
+    if (error) throw new Error(`Error deleting Vehiculo: ${error.message}`);
+    return true;
   }
 
   // Helper method to map database row to object properties
@@ -175,7 +127,7 @@ class Vehiculo {
     this._modelo = row.modelo;
     this._marca = row.marca;
     this._tipo = row.tipo;
-    this._usuario_id_usuario = row.USUARIO_id_usuario;
+    this._usuario_id_usuario = row.usuario_id_usuario;
   }
 
   // Convert to JSON
@@ -192,4 +144,4 @@ class Vehiculo {
   }
 }
 
-module.exports = Vehiculo; 
+module.exports = Vehiculo;
